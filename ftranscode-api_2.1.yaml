@@ -1,0 +1,675 @@
+openapi: 3.0.3
+info:
+  title: File to transcode public API
+  description:
+    This is the public API to configure, operate and monitor the file-to-transcode app.  
+
+  version: 1.0.0
+
+paths:
+  /filetranscode/v1/job:
+    post:
+      tags:
+       - Job
+      summary: Create File Transcoding Job
+      operationId: createFileTranscodeJob
+      requestBody:
+        description: Create a new file transcoding job
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileTranscodeJob'
+        required: true
+      responses:
+        '201':
+          description: File Transcoding Job Created
+          content:
+            application/json:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden   
+        '405':
+          description: Invalid input
+
+  /filetranscode/v1/asset/{id}:
+    get:
+      summary: Get Asset by id
+      tags:
+        - Asset
+      operationId: getAssetById,
+      parameters: 
+          - name: id
+            in: path
+            description: ID of asset to get
+            required: true
+            schema:
+              type: string
+              format: uuid
+      responses: 
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Asset'
+          '401':
+            description: Unauthorized
+          '403':
+            description: Forbidden
+          '404':
+            description: Not Found
+    delete:
+      tags: 
+        - Asset
+      summary: Delete asset
+      description: Delete asset, output files and information on transcoding jobs.
+      operationId: deleteAssetUsing
+      parameters: 
+        - name: id
+          in: path
+          description: ID of asset to delete
+          required: true
+          schema:
+            type: string
+      responses: 
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '204': 
+          description: No Content
+        '401': 
+          description: Unauthorized
+        '403': 
+          description: Forbidden
+
+  /filetranscode/v1/assets:
+    get: 
+      tags: 
+        - Asset
+      summary: Get all assets
+      description: List all existing assets and their output files. Use the limit parameter if there are more than 300 assets were ingested to system
+      operationId: getAssets
+      parameters: 
+        - name: labels
+          in: query
+          description: Query assets by labels, separated by space
+          required: false
+          schema:
+            type: string
+        - name: skip
+          in: query
+          description: Skip this many first results
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: limit
+          in: query
+          description: Show at most this many results
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses: 
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Asset'
+        '401': 
+          description: Unauthorized
+        '403': 
+          description: Forbidden
+        '404': 
+          description: Not Found
+
+  /filetranscode/v1/storageAccount:
+    post:
+      summary: Create file transcode storage account
+      tags:
+        - StorageAccount
+      description: create a file transcode storage account
+      operationId: createFileTranscodeStorageAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileTranscodeStorageAccount'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileTranscodeStorageAccount'
+        '201':
+          description: Created
+        '400':
+          description: Failed to storage account
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+  /filetranscode/v1/storageAccount/{id}:
+    get:
+      summary: Get storage account by Id
+      tags:
+        - StorageAccount
+      description: Get storage account by Id
+      operationId: getFileTranscodeStorageAccountById
+      parameters:
+        - name: id
+          in: path
+          description: Storage Account Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileTranscodeStorageAccount'
+        '400':
+          description: Failed to return storage account
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: No storage account with specified Id
+    put:
+      summary: Update a storage account
+      tags:
+        - StorageAccount
+      description: update a storage account
+      operationId: updateFileTranscodeStorageAccount
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileTranscodeStorageAccount'
+      responses:
+        '201':
+          description: FileTranscodeStorageAccount Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileTranscodeStorageAccount'
+        '400':
+          description: Failed to update Image
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden  
+        '404':
+          description: Cannot find Image
+    
+    delete:
+      summary: Delete a storage account
+      tags:
+        - StorageAccount
+      description: delete a storage account
+      operationId: deleteFileTranscodeStorageAccount
+      parameters:
+        - name: id
+          in: path
+          description: Storage Account Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Storage Account Deleted
+        '400':
+          description: Failed to delete storage account
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden  
+        '404':
+          description: Cannot find storage account
+
+  /filetranscode/v1/storageAccounts:
+    get:
+      summary: Get file transcode storageAccounts
+      tags:
+        - StorageAccount
+      description: Get file transcode storageAccounts
+      operationId: getFileTranscodeStorageAccounts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: list of file transcode storage accounts
+                items:
+                  $ref: '#/components/schemas/FileTranscodeStorageAccount'            
+        '400':
+          description: Failed to return Storage Account
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+  /filetranscode/v1/grooming-profile:
+    post: 
+      tags: 
+        - Grooming
+      summary: Create grooming profile
+      description: Create or update grooming profile
+      operationId: createGroomingProfile
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/GroomingProfile'
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/GroomingProfile'
+        201:
+          description: FileTranscodeStorageAccount Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileTranscodeStorageAccount'
+        401: 
+          description: Unauthorized
+        403: 
+          description: Forbidden
+        404: 
+          description: Not Found
+
+  /filetranscode/v1/grooming-profile/{id}:
+    get: 
+      tags: 
+        - Grooming
+      summary: Get grooming profile
+      description: Get grooming profile"
+      operationId: getGroomingProfile
+      parameters:
+        - name: id
+          in: path
+          description: Profile Id
+          required: true
+          schema:
+            type: string
+      responses: 
+        200: 
+          description: OK
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/GroomingProfile"
+        401: 
+          description: Unauthorized
+        403: 
+          description: Forbidden
+        404: 
+          description: Not Found
+    put: 
+      tags: 
+        - Grooming
+      summary: Update grooming profile
+      description: Update grooming profile
+      operationId: updateGroomingProfile
+      parameters: 
+        - name: id
+          in: path
+          description: Profile id to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroomingProfile"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: string
+        201: 
+          description: Created
+        401: 
+          description: Unauthorized
+        403: 
+          description: Forbidden
+        404: 
+          description: Not Found
+    delete: 
+      tags: 
+        - Grooming
+      summary: Delete grooming profile
+      description: Delete grooming profile
+      operationId: deleteGroomingProfile
+      parameters: 
+        - name: id
+          in: path
+          description: Profile id to delete
+          required: true
+          schema:
+            type: string
+      responses: 
+        200: 
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: string
+        204: 
+          description: No Content
+        401: 
+          description: Unauthorized
+        403: 
+          description: Forbidden
+
+  /filetranscode/v1/grooming-profiles:
+    get: 
+      tags: 
+        - Grooming
+      summary: Get list of grooming profiles
+      description: Get the list of available grooming profiles
+      operationId: getGroomingProfiles
+      responses: 
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  $ref: '#/components/schemas/GroomingProfile'
+        '401': 
+          description: Unauthorized
+        '403': 
+          description: Forbidden
+        '404': 
+          description: Not Found
+
+components:
+  schemas:
+    FileTranscodeJob:
+      type: object
+      properties:
+        inputAsset:
+          type: array
+          items:
+            $ref: '#/components/schemas/InputAsset'
+        prifile:
+          type: string
+          enum:
+            - STANDART
+            - HIGT_DENSITY
+        groomingProfileName:
+          type: string
+        labels:
+          type: array
+          items: 
+            type: string
+        drmProfileId:
+          type: string
+
+    InputAsset:
+      type: object
+      properties:
+        fileName: 
+          type: string
+        storageAccountId:
+          type: string
+        logo:
+          $ref: '#/components/schemas/Logo'
+        subtitles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subtitle'
+
+    Logo:
+      type: object
+      properties:
+        logoName: 
+          type: string
+        storageAccountId:
+          type: string
+        horizontalOffset: 
+          type: integer
+          format: int32
+        opacity: 
+          type: integer
+          format: int32
+        placement: 
+          type: string
+          enum: 
+            - TOP_LEFT
+            - TOP_RIGHT
+            - BOTTOM_LEFT
+            - BOTTOM_RIGHT
+        verticalOffset: 
+          type: integer
+          format: int32
+
+    Subtitle:
+      type: object
+      properties:
+        subtitleName: 
+          type: string
+        storageAccountId:
+          type: string
+        language: 
+          type: string
+        subtitleType: 
+          type: string
+          enum: 
+            - NORMAL
+            - HARD_OF_HEARING
+
+    Asset:
+      type: object
+      properties:
+        id:
+          type: string
+        urls:
+          type: array
+          items:
+            type: string
+        labels:
+          type: array
+          items: 
+            type: string
+        localCopyStatus:
+          type: string
+          enum:
+            - MISSING
+            - SUBMITTED
+            - LOADING
+            - FAILED
+            - READY
+        taskInfo:
+          $ref: '#/components/schemas/TaskInfo'
+    
+    TaskInfo:
+      type: object
+      properties:
+        taskStatus:
+          type: string
+          enum:
+            - QUEUED
+            - SUBMITTED
+            - PROCESSING
+            - FINISHED
+            - FAILED
+            - CANCELING
+            - CANCELED
+            - RECONCILING
+            - REJECTED
+        taskError: 
+          $ref: '#/components/schemas/TaskError'
+
+    FileTranscodeStorageAccount:
+      type: object
+      properties:
+        id: 
+          type: string
+          format: '([a-zA-Z0-9-_:.])+'
+          description: uuid generated if not provided at POST
+          example: devstorage
+        accountKey:
+          type: string
+        accountName:
+          type: string
+        containerName:
+          type: string
+
+    GroomingProfile:
+      properties: 
+        audioGrooming: 
+          $ref: '#/components/schemas/AudioGrooming'
+        groomingFileType: 
+          type: string
+          enum: 
+            - MXF
+            - TS
+            - MP4
+            - MOV
+        groomingMode: 
+          type: string
+          enum: 
+            - UPDATE
+            - OVERRIDE
+        id: 
+          type: string
+        name: 
+          type: string
+        subtitlesGrooming: 
+          $ref: '#/components/schemas/SubtitlesGrooming'
+    AudioGrooming:
+      properties: 
+        audioTracks: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/GroomingAudioTrack'
+    GroomingAudioTrack:
+      properties: 
+        audioChannels: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/AudioChannel'
+        size: 
+          type: integer
+          format: int32
+        trackId: 
+          type: integer
+          format: int32
+        trackType: 
+          type: string
+          enum: 
+          - PCM
+          - DOLBY_E
+          - DOLBY_AC3
+          - AAC
+          - MPEG1
+    SubtitlesGrooming:
+      properties: 
+        dvbSubtitleHandling: 
+          type: string
+          enum: 
+            - PASSTHROUGH
+            - OCR_TO_WEBVTT
+        ocrConversionBackgroundColor:
+          type: string
+        subtitles: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/GroomingSubtitleTrack'
+    GroomingSubtitleTrack:
+      properties: 
+        language: 
+          type: string
+        line: 
+          type: integer
+          format: int32
+        page: 
+          type: integer
+          format: int32
+        trackId: 
+          type: integer
+          format: int32
+        type: 
+          type: string
+          enum: 
+            - CLOSED_CAPTION
+            - TELETEXT
+            - DVB
+    AudioChannel:
+      properties: 
+        audioType: 
+          type: string
+          enum: 
+            - UNDEFINED
+            - CLEAN_EFFECTS
+            - HEARING_IMPAIRED
+            - VISUAL_IMPAIRED_COMMENTARY
+        ignore: 
+          type: boolean
+        labels: 
+          type: array
+          items: 
+            type: string
+        language: 
+          type: string
+        position: 
+          type: string
+          enum: 
+            - LEFT
+            - RIGHT
+            - CENTER
+            - LFE
+            - LEFT_SURROUND
+            - RIGHT_SURROUND
+            - LEFT_BACK_SURROUND
+            - RIGHT_BACK_SURROUND
+        type: 
+          type: string
+          enum: 
+            - AUDIO_1_0
+            - AUDIO_2_0
+            - AUDIO_5_1
+            - AUDIO_7_1
+          
+    TaskError:
+      properties: 
+        description: 
+          type: string
+        fullErrorMessage: 
+          type: string
+        reason: 
+          type: string
